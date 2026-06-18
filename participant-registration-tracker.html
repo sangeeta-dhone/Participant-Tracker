@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Participant Registration Tracker — NICE Actimize</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── Header ── */
+  .header { background: linear-gradient(135deg, #1a3a5c 0%, #1a56db 100%); color: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .logo-box { width: 34px; height: 34px; background: rgba(255,255,255,0.15); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .header-title { font-weight: 700; font-size: 15px; letter-spacing: -0.2px; }
+  .header-sub { font-size: 11px; opacity: 0.75; margin-top: 1px; }
+  .key-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: white; border-radius: 20px; padding: 5px 14px; font-size: 12px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+  .key-btn:hover { background: rgba(255,255,255,0.25); }
+  .dot-green { color: #4ade80; font-size: 10px; }
+  .dot-red   { color: #f87171; font-size: 10px; }
+
+  /* ── Setup Panel ── */
+  .setup-panel { background: #fffbeb; border-bottom: 1px solid #fde68a; padding: 20px 24px; }
+  .setup-title { font-weight: 700; font-size: 15px; color: #92400e; margin-bottom: 8px; }
+  .setup-desc  { font-size: 13px; color: #78350f; margin-bottom: 14px; line-height: 1.5; }
+  .setup-desc a { color: #1a56db; }
+  .setup-row   { display: flex; gap: 8px; margin-bottom: 12px; }
+  .key-input   { flex: 1; border: 1.5px solid #d97706; border-radius: 8px; padding: 9px 14px; font-size: 13px; font-family: monospace; outline: none; background: white; }
+  .show-btn    { background: #f59e0b; color: white; border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  .setup-actions { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .setup-note  { font-size: 12px; color: #78350f; opacity: 0.8; }
+  .hidden { display: none !important; }
+
+  /* ── Body ── */
+  .body { flex: 1; padding: 24px 20px; max-width: 780px; margin: 0 auto; width: 100%; }
+
+  /* ── Cards ── */
+  .card { background: white; border-radius: 12px; padding: 22px 24px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+  .step-row   { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .step-badge { background: #1a56db; color: white; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .step-title { font-weight: 700; font-size: 15px; color: #1e293b; }
+
+  textarea { width: 100%; min-height: 190px; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 12px 14px; font-size: 13px; font-family: 'Menlo', 'Consolas', monospace; resize: vertical; outline: none; color: #334155; line-height: 1.6; }
+  textarea:focus { border-color: #1a56db; }
+
+  .error-box   { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; padding: 10px 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; font-size: 13px; color: #dc2626; }
+  .success-box { margin-top: 14px; padding: 10px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; font-size: 13px; color: #15803d; }
+  .summary-bar { font-size: 13px; color: #475569; margin-bottom: 16px; padding: 10px 14px; background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe; }
+
+  /* ── Buttons ── */
+  .btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .btn-primary { background: #1a56db; color: white; }
+  .btn-primary:hover { background: #1648c0; }
+  .btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+  .btn-ghost   { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+  .btn-ghost:hover { background: #e2e8f0; }
+  .btn-success { background: #16a34a; color: white; }
+  .btn-success:hover { background: #15803d; }
+  .btn-danger  { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+  /* ── Training blocks ── */
+  .training-card { margin-bottom: 18px; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  .training-head { display: flex; align-items: flex-start; gap: 10px; padding: 12px 16px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .training-icon { font-size: 16px; margin-top: 1px; }
+  .training-name { font-weight: 700; font-size: 14px; color: #1e293b; }
+  .training-meta { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 8px 14px; font-size: 11px; font-weight: 700; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.4px; }
+  td { padding: 9px 14px; font-size: 13px; color: #1e293b; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  .td-num   { color: #94a3b8; text-align: center; width: 36px; }
+  .td-email { color: #2563eb; font-size: 12px; }
+
+  /* ── Footer ── */
+  footer { text-align: center; font-size: 11px; color: #94a3b8; padding: 14px; border-top: 1px solid #e2e8f0; background: white; }
+
+  /* ── Spinner ── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-box">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M4 16V8l6-4 6 4v8" stroke="white" stroke-width="1.8" stroke-linejoin="round"/>
+        <rect x="7" y="10" width="6" height="6" rx="1" fill="white"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">Participant Registration Tracker</div>
+      <div class="header-sub">Email to Excel Automation · NICE Actimize</div>
+    </div>
+  </div>
+  <button class="key-btn" id="toggleSetupBtn" onclick="toggleSetup()">
+    <span id="keyDot" class="dot-red">●</span>
+    <span id="keyLabel">Add API Key</span>
+  </button>
+</div>
+
+<!-- ── API Key Setup Panel ──────────────────────────────────────────────────── -->
+<div class="setup-panel hidden" id="setupPanel">
+  <div class="setup-title">🔑 Gemini API Key Setup</div>
+  <div class="setup-desc">
+    This tool uses Google Gemini AI to intelligently read emails. A free API key is required.<br/>
+    <a href="https://aistudio.google.com/app/apikey" target="_blank">Get your free key at Google AI Studio →</a>
+  </div>
+  <div class="setup-row">
+    <input class="key-input" id="keyInput" type="password" placeholder="Paste your Gemini API key here (AIza...)"/>
+    <button class="show-btn" onclick="toggleKeyVisibility()">Show</button>
+  </div>
+  <div class="setup-actions">
+    <button class="btn btn-primary" onclick="saveKey()">Save Key</button>
+    <button class="btn btn-danger" id="removeKeyBtn" onclick="removeKey()" style="display:none">Remove Key</button>
+    <button class="btn btn-ghost" onclick="toggleSetup()">Cancel</button>
+  </div>
+  <div class="setup-note">✓ Your key is saved in your browser only — never sent anywhere except directly to Google's API.</div>
+</div>
+
+<!-- ── Body ────────────────────────────────────────────────────────────────── -->
+<div class="body">
+
+  <!-- Step 1 -->
+  <div class="card">
+    <div class="step-row">
+      <div class="step-badge">1</div>
+      <div class="step-title">Paste the customer email</div>
+    </div>
+    <textarea id="emailInput" placeholder="Paste the full email thread here — including From, To, Cc, Subject, and body…"></textarea>
+    <div class="error-box hidden" id="errorBox">
+      <span>⚠</span> <span id="errorMsg"></span>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="extractBtn" onclick="handleExtract()">
+        ⚡ Extract Participants
+      </button>
+      <button class="btn btn-ghost hidden" id="resetBtn" onclick="handleReset()">
+        ↩ Start Over
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2 (results) -->
+  <div class="card hidden" id="resultsCard">
+    <div class="step-row">
+      <div class="step-badge">2</div>
+      <div class="step-title">Review & Download</div>
+    </div>
+    <div class="summary-bar" id="summaryBar"></div>
+    <div id="trainingsContainer"></div>
+    <div class="btn-row">
+      <button class="btn btn-success" id="downloadBtn" onclick="handleDownload()">
+        ⬇ Download Excel
+      </button>
+    </div>
+    <div class="success-box hidden" id="successBox">
+      ✅ File downloaded! Dojo Account and Class Status columns are blank — fill them in as training progresses.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Powered by Google Gemini AI · Dojo Account &amp; Class Status left blank for manual entry · NICE Actimize
+</footer>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let currentResult = null;
+
+// ── On load ────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  const k = localStorage.getItem('gemini_api_key') || '';
+  if (k) {
+    document.getElementById('keyInput').value = k;
+    updateKeyUI(true);
+  } else {
+    document.getElementById('setupPanel').classList.remove('hidden');
+  }
+});
+
+// ── API Key helpers ────────────────────────────────────────────────────────
+function toggleSetup() {
+  document.getElementById('setupPanel').classList.toggle('hidden');
+}
+function toggleKeyVisibility() {
+  const inp = document.getElementById('keyInput');
+  const btn = inp.nextElementSibling;
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+  else { inp.type = 'password'; btn.textContent = 'Show'; }
+}
+function saveKey() {
+  const k = document.getElementById('keyInput').value.trim();
+  if (!k) { showError('Please enter a valid API key.'); return; }
+  localStorage.setItem('gemini_api_key', k);
+  updateKeyUI(true);
+  document.getElementById('setupPanel').classList.add('hidden');
+  hideError();
+}
+function removeKey() {
+  localStorage.removeItem('gemini_api_key');
+  document.getElementById('keyInput').value = '';
+  updateKeyUI(false);
+}
+function updateKeyUI(saved) {
+  document.getElementById('keyDot').className   = saved ? 'dot-green' : 'dot-red';
+  document.getElementById('keyLabel').textContent = saved ? 'API Key saved' : 'Add API Key';
+  document.getElementById('removeKeyBtn').style.display = saved ? '' : 'none';
+}
+
+// ── Error helpers ──────────────────────────────────────────────────────────
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  document.getElementById('errorMsg').textContent = msg;
+  box.classList.remove('hidden');
+}
+function hideError() {
+  document.getElementById('errorBox').classList.add('hidden');
+}
+
+// ── Name derivation ────────────────────────────────────────────────────────
+function deriveName(email) {
+  const local = email.split('@')[0];
+  return local.split(/[.\-_]/).map(part => {
+    const words = part.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
+    return words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }).join(' ');
+}
+
+// ── Extract ────────────────────────────────────────────────────────────────
+async function handleExtract() {
+  const emailText = document.getElementById('emailInput').value.trim();
+  if (!emailText) { showError('Please paste an email first.'); return; }
+
+  const apiKey = localStorage.getItem('gemini_api_key');
+  if (!apiKey) {
+    showError('Please add your Gemini API key first.');
+    document.getElementById('setupPanel').classList.remove('hidden');
+    return;
+  }
+
+  hideError();
+  document.getElementById('resultsCard').classList.add('hidden');
+  document.getElementById('successBox').classList.add('hidden');
+  document.getElementById('resetBtn').classList.remove('hidden');
+
+  const btn = document.getElementById('extractBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Reading email…';
+
+  const prompt = `You are an expert at parsing training coordination emails.
+Extract ALL training sessions and their participants from the email thread below.
+
+Return ONLY valid JSON in this exact format (no markdown, no explanation):
+{
+  "trainings": [
+    {
+      "name": "Full training name including dates if mentioned",
+      "sheetName": "Short tab name max 25 chars",
+      "participants": [
+        { "firstName": "Audun", "email": "Audun.Ask.Blaker@dnb.no" }
+      ]
+    }
+  ]
+}
+
+Rules:
+- Detect ALL distinct training types (1, 2, or more).
+- For participants listed by name only (no email in body), match their email from the CC/To header fields.
+- Remove duplicates within the same training only. Same person in multiple trainings = keep in each.
+- Include dates in the name field if mentioned.
+- Only return JSON. No explanation, no markdown fences.
+
+EMAIL:
+${emailText}`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
+        })
+      }
+    );
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      const msg = errData?.error?.message || `API error ${res.status}`;
+      if (res.status === 400) throw new Error('Invalid API key. Please check your Gemini API key in the setup panel.');
+      if (res.status === 403) throw new Error('API key lacks permission. Ensure Gemini API is enabled at aistudio.google.com.');
+      if (res.status === 429) throw new Error('Rate limit reached. Please wait a moment and try again.');
+      throw new Error(msg);
+    }
+
+    const data  = await res.json();
+    const raw   = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    const trainings = parsed.trainings.map(t => ({
+      ...t,
+      participants: t.participants.map(p => ({ ...p, name: deriveName(p.email) }))
+    }));
+
+    currentResult = { trainings };
+    renderResults(trainings);
+
+  } catch (err) {
+    showError(err.message || 'Something went wrong. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '⚡ Extract Participants';
+  }
+}
+
+// ── Render results ─────────────────────────────────────────────────────────
+function renderResults(trainings) {
+  const totalP = trainings.reduce((s, t) => s + t.participants.length, 0);
+  document.getElementById('summaryBar').innerHTML =
+    `Found <strong>${trainings.length}</strong> training${trainings.length !== 1 ? 's' : ''} · <strong>${totalP}</strong> total participant${totalP !== 1 ? 's' : ''}`;
+
+  const container = document.getElementById('trainingsContainer');
+  container.innerHTML = '';
+
+  trainings.forEach(t => {
+    const rows = t.participants.map((p, i) => `
+      <tr>
+        <td class="td-num">${i + 1}</td>
+        <td>${escHtml(p.name)}</td>
+        <td class="td-email">${escHtml(p.email)}</td>
+      </tr>`).join('');
+
+    container.innerHTML += `
+      <div class="training-card">
+        <div class="training-head">
+          <div class="training-icon">📋</div>
+          <div>
+            <div class="training-name">${escHtml(t.name)}</div>
+            <div class="training-meta">Sheet: <em>${escHtml(t.sheetName)}</em> · ${t.participants.length} participant${t.participants.length !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th style="width:36px">#</th><th>Name</th><th>Email Address</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  });
+
+  const dlBtn = document.getElementById('downloadBtn');
+  dlBtn.textContent = `⬇ Download Excel${trainings.length > 1 ? ' (all sheets)' : ''}`;
+
+  document.getElementById('resultsCard').classList.remove('hidden');
+  document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Download Excel ─────────────────────────────────────────────────────────
+function handleDownload() {
+  if (!currentResult) return;
+  const wb = XLSX.utils.book_new();
+
+  currentResult.trainings.forEach(t => {
+    const rows = [
+      [t.name, '', '', '', ''],
+      ['Sr. No.', 'Attendees Name', 'Email Address', 'Dojo Account', 'Class Status'],
+      ...t.participants.map((p, i) => [i + 1, p.name, p.email, '', ''])
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']   = [{ wch: 8 }, { wch: 28 }, { wch: 42 }, { wch: 22 }, { wch: 16 }];
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 4 } }];
+    const sheetName = t.sheetName.replace(/[\\\/\?\*\[\]:]/g, '-').slice(0, 31);
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  const fileName = currentResult.trainings.length === 1
+    ? `${currentResult.trainings[0].sheetName.replace(/[\s\/\\:*?"<>|]/g, '_')}.xlsx`
+    : 'Training_Participants.xlsx';
+
+  XLSX.writeFile(wb, fileName);
+  document.getElementById('successBox').classList.remove('hidden');
+}
+
+// ── Reset ──────────────────────────────────────────────────────────────────
+function handleReset() {
+  document.getElementById('emailInput').value = '';
+  document.getElementById('resultsCard').classList.add('hidden');
+  document.getElementById('resetBtn').classList.add('hidden');
+  document.getElementById('successBox').classList.add('hidden');
+  hideError();
+  currentResult = null;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
