@@ -6,93 +6,62 @@
 <title>Participant Registration Tracker — NICE Actimize</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',Tahoma,sans-serif;background:#EEF1F8;min-height:100vh;display:flex;flex-direction:column}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f4ff;min-height:100vh;display:flex;flex-direction:column}
 
-header{background:linear-gradient(135deg,#1a237e 0%,#283593 100%);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-.header-left{display:flex;align-items:center;gap:12px}
-.header-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.header-titles h1{color:#fff;font-size:15px;font-weight:700}
-.header-titles p{color:#90CAF9;font-size:11px;margin-top:1px}
-.api-pill{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:background .2s}
-.api-pill.saved{background:rgba(76,175,80,.2);color:#A5D6A7}
-.api-pill.missing{background:rgba(255,255,255,.12);color:#90CAF9}
-.dot{width:7px;height:7px;border-radius:50%}
-.api-pill.saved .dot{background:#66BB6A}
-.api-pill.missing .dot{background:#FFB74D}
+header{background:linear-gradient(135deg,#1a3a5c 0%,#1a56db 100%);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.logo-box{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-right:12px}
+.header-left{display:flex;align-items:center}
+.header-left h1{color:#fff;font-size:15px;font-weight:700}
+.header-left p{color:#93C5FD;font-size:11px;margin-top:1px}
+.no-key-badge{background:rgba(74,222,128,.2);color:#86EFAC;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:5px}
+.no-key-badge .dot{width:7px;height:7px;background:#4ADE80;border-radius:50%}
 
 main{max-width:780px;margin:28px auto;padding:0 20px;width:100%;flex:1}
 
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100}
-.modal-overlay.hidden{display:none}
-.modal{background:#fff;border-radius:14px;padding:28px;width:100%;max-width:500px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.modal h2{font-size:15px;font-weight:700;color:#1a237e;margin-bottom:8px}
-.modal-desc{font-size:13px;color:#555;line-height:1.65;margin-bottom:18px}
-.modal-desc a{color:#3949AB;font-weight:600}
-.steps-visual{background:#F5F7FF;border-radius:10px;padding:14px 16px;margin-bottom:18px}
-.steps-visual p{font-size:12px;font-weight:700;color:#1a237e;margin-bottom:10px;text-transform:uppercase;letter-spacing:.04em}
-.step-line{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;font-size:12px;color:#444;line-height:1.5}
-.step-line:last-child{margin-bottom:0}
-.step-circle{min-width:20px;height:20px;border-radius:50%;background:#1a237e;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px}
-.input-row{display:flex;gap:8px}
-.input-row input{flex:1;padding:10px 12px;border:1.5px solid #C5CAE9;border-radius:8px;font-size:13px;font-family:monospace;outline:none;color:#333;transition:border .15s}
-.input-row input:focus{border-color:#3949AB}
-.btn-save{padding:10px 20px;background:#1a237e;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
-.btn-save:hover{background:#283593}
-.modal-foot{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
-.btn-cancel{padding:8px 14px;background:#F5F5F5;color:#555;border:none;border-radius:8px;font-size:12px;cursor:pointer}
-.saved-msg{font-size:12px;color:#2E7D32;display:none}
-.modal-note{font-size:11px;color:#999;margin-top:10px}
-
 .card{background:#fff;border-radius:14px;border:1px solid #E0E4F0;padding:24px 26px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .card-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
-.step-badge{width:28px;height:28px;border-radius:50%;background:#1a237e;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.card-header h2{font-size:14px;font-weight:700;color:#1a237e;margin:0}
+.step-badge{width:28px;height:28px;border-radius:50%;background:#1a56db;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.card-header h2{font-size:14px;font-weight:700;color:#1e3a5f;margin:0}
 .card-header p{font-size:12px;color:#888;margin:2px 0 0}
 
-textarea{width:100%;height:210px;padding:12px 14px;border:1.5px solid #C5CAE9;border-radius:10px;font-size:13px;font-family:'Segoe UI',sans-serif;color:#333;resize:vertical;outline:none;line-height:1.65;transition:border .15s}
-textarea:focus{border-color:#3949AB}
+textarea{width:100%;height:220px;padding:12px 14px;border:1.5px solid #C5CAE9;border-radius:10px;font-size:13px;font-family:'Segoe UI',sans-serif;color:#333;resize:vertical;outline:none;line-height:1.65;transition:border .15s}
+textarea:focus{border-color:#1a56db}
 textarea::placeholder{color:#B0B8D0}
 
 .btn-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
-.btn{padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:7px;transition:background .15s,opacity .15s}
+.btn{padding:10px 20px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:7px;transition:background .15s}
 .btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:#1a237e;color:#fff;font-size:14px;padding:11px 26px;margin-left:auto}
-.btn-primary:hover:not(:disabled){background:#283593}
-.btn-secondary{background:#E8EAF6;color:#1a237e}
-.btn-secondary:hover:not(:disabled){background:#C5CAE9}
-.btn-success{background:#2E7D32;color:#fff}
-.btn-success:hover:not(:disabled){background:#1B5E20}
+.btn-primary{background:#1a56db;color:#fff;font-size:14px;padding:11px 26px;margin-left:auto}
+.btn-primary:hover:not(:disabled){background:#1648c0}
+.btn-secondary{background:#E8EAF6;color:#1e3a5f}
+.btn-secondary:hover{background:#C5CAE9}
+.btn-success{background:#1D9E75;color:#fff}
+.btn-success:hover{background:#178A64}
 .btn-ghost{background:#F5F5F5;color:#C62828}
 .btn-ghost:hover{background:#FFEBEE}
 
 .status-bar{padding:10px 14px;border-radius:9px;font-size:13px;margin-top:12px;display:none;align-items:center;gap:9px;line-height:1.5}
-.status-bar.info{background:#E3F2FD;color:#0D47A1;display:flex}
 .status-bar.success{background:#E8F5E9;color:#1B5E20;display:flex}
 .status-bar.error{background:#FFEBEE;color:#B71C1C;display:flex}
 .status-bar.warn{background:#FFF8E1;color:#E65100;display:flex}
-.spinner{width:16px;height:16px;border:2px solid #90CAF9;border-top-color:#1a237e;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
 
-.retry-bar{display:none;margin-top:10px;align-items:center;gap:10px;font-size:13px;color:#E65100}
-.retry-bar.show{display:flex}
-.retry-count{font-weight:700}
-.btn-retry{padding:6px 14px;background:#FF6F00;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
-.btn-retry:hover{background:#E65100}
-
-.preview-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
-.preview-table th{background:#E8EAF6;color:#1a237e;padding:8px 10px;text-align:left;font-weight:700;font-size:12px;border-bottom:2px solid #C5CAE9}
+.preview-table{width:100%;border-collapse:collapse;font-size:13px}
+.preview-table th{background:#E8EAF6;color:#1e3a5f;padding:8px 10px;text-align:left;font-weight:700;font-size:12px;border-bottom:2px solid #C5CAE9}
 .preview-table td{padding:8px 10px;border-bottom:1px solid #F0F2FA;color:#333;vertical-align:middle}
 .preview-table tr:last-child td{border-bottom:none}
 .preview-table tr:hover td{background:#F5F7FF}
-.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
-.tag-confirmed{background:#E8F5E9;color:#1B5E20}
-.tag-waitlisted{background:#FFF8E1;color:#E65100}
-.tag-pending{background:#F3F4F6;color:#555}
+.tag{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:#E8F5E9;color:#1B5E20}
 
-.session-strip{margin-top:14px;padding:10px 14px;background:#F5F7FF;border-radius:9px;border-left:3px solid #3949AB;font-size:12px;color:#555;display:flex;gap:24px;flex-wrap:wrap}
-.session-strip strong{color:#1a237e}
-.done-note{font-size:11px;color:#999;margin-top:10px}
+.session-strip{margin-top:14px;padding:10px 14px;background:#F5F7FF;border-radius:9px;border-left:3px solid #1a56db;font-size:12px;color:#555;display:flex;gap:20px;flex-wrap:wrap}
+.session-strip strong{color:#1e3a5f}
+
+/* Editable cells */
+.editable{border:none;width:100%;font-size:13px;font-family:'Segoe UI',sans-serif;background:transparent;outline:none;color:#333;padding:0}
+.editable:focus{background:#F0F4FF;border-radius:4px;padding:2px 4px}
+
+.info-box{background:#E3F2FD;border:1px solid #90CAF9;border-radius:9px;padding:12px 16px;font-size:12px;color:#0D47A1;margin-bottom:16px;line-height:1.7}
+.info-box strong{font-weight:700}
 
 footer{text-align:center;padding:16px;font-size:11px;color:#AAB0BE}
 .hidden{display:none!important}
@@ -100,48 +69,22 @@ footer{text-align:center;padding:16px;font-size:11px;color:#AAB0BE}
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <div class="header-left">
-    <div class="header-icon">🏠</div>
-    <div class="header-titles">
+    <div class="logo-box">🏠</div>
+    <div>
       <h1>Participant Registration Tracker</h1>
       <p>Email to Excel Automation · NICE Actimize</p>
     </div>
   </div>
-  <button class="api-pill missing" id="apiPill" onclick="openModal()">
-    <span class="dot"></span>
-    <span id="apiPillLabel">Add API Key</span>
-  </button>
+  <div class="no-key-badge"><span class="dot"></span> No account needed</div>
 </header>
 
-<!-- API Key Modal -->
-<div class="modal-overlay hidden" id="modalOverlay">
-  <div class="modal">
-    <h2>🔑 Gemini API Key Setup</h2>
-    <p class="modal-desc">This tool uses Google Gemini AI to intelligently read emails. A <strong>free</strong> API key is required.</p>
-
-    <div class="steps-visual">
-      <p>How to get your free key</p>
-      <div class="step-line"><div class="step-circle">1</div><span>Go to <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a></span></div>
-      <div class="step-line"><div class="step-circle">2</div><span>Sign in with your Google account (Gmail works)</span></div>
-      <div class="step-line"><div class="step-circle">3</div><span>Click <strong>"Create API Key"</strong> → copy the key</span></div>
-      <div class="step-line"><div class="step-circle">4</div><span>Paste it below and click <strong>Save Key</strong></span></div>
-    </div>
-
-    <div class="input-row">
-      <input type="password" id="apiKeyInput" placeholder="AIza..." autocomplete="off"/>
-      <button class="btn-save" onclick="saveKey()">Save Key</button>
-    </div>
-    <div class="modal-foot">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <span class="saved-msg" id="savedMsg">✅ Key saved!</span>
-    </div>
-    <p class="modal-note">Your key is stored only in your browser — never sent anywhere except directly to Google's API.</p>
-  </div>
-</div>
-
 <main>
+
+  <div class="info-box">
+    ✨ <strong>No API key or account required.</strong> This tool reads your email directly in the browser — names and emails are extracted instantly using smart pattern matching. Nothing is sent to any server.
+  </div>
 
   <!-- Step 1 -->
   <div class="card" id="section-email">
@@ -152,17 +95,13 @@ footer{text-align:center;padding:16px;font-size:11px;color:#AAB0BE}
         <p>Copy the full email from Outlook (Ctrl+A → Ctrl+C) then paste below</p>
       </div>
     </div>
-    <textarea id="emailInput" placeholder="Paste your training email here — include the From, To, CC fields and full body for best results…"></textarea>
+    <textarea id="emailInput" placeholder="Paste your training email here — include From, To, CC fields and the full body for best results…"></textarea>
     <div class="btn-row">
       <button class="btn btn-secondary" onclick="pasteClipboard()">📋 Paste from Clipboard</button>
       <button class="btn btn-ghost" onclick="clearAll()">↩ Start Over</button>
       <button class="btn btn-primary" id="extractBtn" onclick="extractParticipants()">⚡ Extract Participants</button>
     </div>
     <div class="status-bar" id="extractStatus"></div>
-    <div class="retry-bar" id="retryBar">
-      ⏳ Gemini is busy. Retrying automatically… attempt <span class="retry-count" id="retryCount">1</span> of 3
-      <button class="btn-retry" onclick="retryNow()">Retry now</button>
-    </div>
   </div>
 
   <!-- Step 2 -->
@@ -171,7 +110,7 @@ footer{text-align:center;padding:16px;font-size:11px;color:#AAB0BE}
       <div class="step-badge">2</div>
       <div>
         <h2 id="previewHeading">Review &amp; Download</h2>
-        <p>Verify the extracted participants before downloading</p>
+        <p>Click any name or email cell to correct it before downloading</p>
       </div>
     </div>
     <div style="overflow-x:auto">
@@ -182,68 +121,35 @@ footer{text-align:center;padding:16px;font-size:11px;color:#AAB0BE}
     </div>
     <div class="session-strip" id="sessionStrip"></div>
     <div class="btn-row" style="margin-top:16px">
-      <button class="btn btn-secondary" onclick="goBack()">← Edit Email</button>
+      <button class="btn btn-secondary" onclick="addRow()">+ Add row</button>
+      <button class="btn btn-ghost" onclick="goBack()">← Edit Email</button>
       <button class="btn btn-success" onclick="downloadExcel()" style="margin-left:auto">⬇ Download Excel</button>
     </div>
-    <p class="done-note">✅ File downloaded! Dojo Account and Class Status columns are blank — fill them in as training progresses.</p>
+    <p style="font-size:11px;color:#999;margin-top:10px">✅ Dojo Account and Class Status columns are blank — fill them in as training progresses.</p>
   </div>
 
 </main>
 
-<footer>Powered by Google Gemini AI · Dojo Account &amp; Class Status left blank for manual entry · NICE Actimize</footer>
+<footer>No AI account needed · Works entirely in your browser · NICE Actimize</footer>
 
 <script>
-let extractedData = null;
-let retryTimer = null;
-let currentEmailText = '';
-let retryAttempt = 0;
-const MAX_RETRIES = 3;
-const RETRY_DELAY = 8000; // 8 seconds between retries
+let parsedData = null;
 
-/* ── Models to try in order (fallback chain) ── */
-const GEMINI_MODELS = [
-  'gemini-2.0-flash',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b'
-];
-
-function openModal(){ document.getElementById('modalOverlay').classList.remove('hidden') }
-function closeModal(){ document.getElementById('modalOverlay').classList.add('hidden') }
-
-function saveKey(){
-  const k = document.getElementById('apiKeyInput').value.trim();
-  if(!k || k.length < 10){ alert('Please enter a valid Gemini API key.\nIt starts with "AIza..." and is about 39 characters long.'); return }
-  localStorage.setItem('gemini_api_key', k);
-  document.getElementById('savedMsg').style.display = 'inline';
-  updatePill(true);
-  setTimeout(closeModal, 900);
-}
-
-function getKey(){ return localStorage.getItem('gemini_api_key') || '' }
-
-function updatePill(saved){
-  const pill = document.getElementById('apiPill');
-  document.getElementById('apiPillLabel').textContent = saved ? 'API Key saved' : 'Add API Key';
-  pill.className = 'api-pill ' + (saved ? 'saved' : 'missing');
-}
-
+/* ── Paste from clipboard ── */
 async function pasteClipboard(){
   try{
     const t = await navigator.clipboard.readText();
     document.getElementById('emailInput').value = t;
   } catch(e){
-    alert('Clipboard blocked by browser.\nClick inside the text box and press Ctrl+V to paste.');
+    alert('Click inside the text box and press Ctrl+V to paste.');
   }
 }
 
 function clearAll(){
   document.getElementById('emailInput').value = '';
   document.getElementById('extractStatus').className = 'status-bar';
-  document.getElementById('retryBar').classList.remove('show');
   document.getElementById('section-preview').classList.add('hidden');
-  clearTimeout(retryTimer);
-  retryAttempt = 0;
-  extractedData = null;
+  parsedData = null;
 }
 
 function goBack(){
@@ -256,197 +162,228 @@ function setStatus(type, html){
   el.innerHTML = html;
 }
 
-function setExtractBtn(busy){
-  const btn = document.getElementById('extractBtn');
-  btn.disabled = busy;
-  btn.textContent = busy ? 'Extracting…' : '⚡ Extract Participants';
-}
+/* ════════════════════════════════════════
+   CORE PARSER — no AI needed
+   ════════════════════════════════════════ */
+function extractParticipants(){
+  const text = document.getElementById('emailInput').value.trim();
+  if(!text){ alert('Please paste your email first.'); return; }
 
-/* ── Main extraction ── */
-async function extractParticipants(){
-  const key = getKey();
-  if(!key){ openModal(); return }
+  const result = parseEmail(text);
 
-  const email = document.getElementById('emailInput').value.trim();
-  if(!email){ alert('Please paste your email first.'); return }
-
-  currentEmailText = email;
-  retryAttempt = 0;
-  document.getElementById('retryBar').classList.remove('show');
-  clearTimeout(retryTimer);
-
-  await attemptExtraction(key, email, 0);
-}
-
-function retryNow(){
-  clearTimeout(retryTimer);
-  document.getElementById('retryBar').classList.remove('show');
-  attemptExtraction(getKey(), currentEmailText, retryAttempt);
-}
-
-async function attemptExtraction(key, email, modelIndex){
-  if(modelIndex >= GEMINI_MODELS.length){
-    setExtractBtn(false);
-    setStatus('error', '❌ All Gemini models are currently overloaded. Please wait a few minutes and click "Extract Participants" again.');
-    document.getElementById('retryBar').classList.remove('show');
+  if(!result.attendees.length){
+    setStatus('error',
+      '❌ No participants found. Make sure the email includes names and email addresses. ' +
+      'Try pasting the full email including the CC/To header.');
     return;
   }
 
-  const model = GEMINI_MODELS[modelIndex];
-  setExtractBtn(true);
-  setStatus('info', '<div class="spinner"></div>&nbsp; Connecting to Gemini AI (' + model + ')… extracting participants…');
-
-  const prompt = `You are a training coordination assistant. Extract all participant details from the email below.
-
-Return ONLY a valid JSON object — no markdown, no explanation, no code fences:
-{
-  "title": "Full training session title",
-  "session_dates": "Human-readable date range e.g. Jul 6-9 and Jul 20-24, 2026",
-  "sheet_name": "Excel tab name max 31 characters",
-  "session_note": "Footer note for Excel including session dates and key info",
-  "attendees": [
-    {"name": "Full Name", "email": "email@domain.com", "dojo_account": "", "status": "Confirmed"}
-  ]
+  parsedData = result;
+  renderPreview(result);
+  setStatus('success', '✅ &nbsp;' + result.attendees.length + ' participant(s) extracted. Review below — click any cell to edit.');
+  document.getElementById('section-preview').classList.remove('hidden');
+  document.getElementById('section-preview').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-Rules:
-- Extract ALL attendees from body, CC field, To field, bullet lists, tables
-- If only a first name is given, derive full name from email address (e.g. KshitijKumar.Thakar@internal.53.com → Kshitij Kumar Thakar)
-- dojo_account: always set to ""
-- status: "Confirmed" unless explicitly stated otherwise
-- sheet_name must be 31 characters or fewer
+function parseEmail(text){
+  // ── 1. Pull ALL email addresses from the full text
+  const emailRe = /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g;
+  const allEmails = [...new Set((text.match(emailRe)||[]).map(e=>e.toLowerCase()))];
 
-EMAIL:
-${email.substring(0, 8000)}`;
+  // ── 2. Filter out obvious system / sender emails (noreply, mailer, etc.)
+  const skipDomains = /noreply|no-reply|mailer|postmaster|notification|bounce|donotreply/i;
+  const candidateEmails = allEmails.filter(e => !skipDomains.test(e));
 
-  try{
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 2048 }
-      })
-    });
+  // ── 3. For each email try to find a name
+  const attendees = [];
+  const seen = new Set();
 
-    /* ── Handle server busy / rate limit → retry with next model ── */
-    if(resp.status === 429 || resp.status === 503){
-      retryAttempt = modelIndex + 1;
-      document.getElementById('retryCount').textContent = retryAttempt + 1;
-      document.getElementById('retryBar').classList.add('show');
-      setStatus('warn', '⚠ &nbsp;Gemini model <strong>' + model + '</strong> is busy. Switching to fallback model in 8 seconds…');
-      retryTimer = setTimeout(() => {
-        document.getElementById('retryBar').classList.remove('show');
-        attemptExtraction(key, email, retryAttempt);
-      }, RETRY_DELAY);
-      return;
-    }
+  candidateEmails.forEach(email => {
+    if(seen.has(email)) return;
+    seen.add(email);
+    const name = findNameForEmail(email, text) || deriveNameFromEmail(email);
+    if(name) attendees.push({ name, email, dojo_account:'', status:'Confirmed' });
+  });
 
-    if(resp.status === 400){
-      setExtractBtn(false);
-      setStatus('error', '❌ Invalid API key. Click <strong>API Key saved</strong> in the top-right corner to update it.');
-      return;
-    }
+  // ── 4. Try to find session title / dates
+  const title = extractTitle(text);
+  const dates = extractDates(text);
+  const sheetName = (dates || title || 'Roster').substring(0,31);
+  const sessionNote = [title, dates].filter(Boolean).join(' — ');
 
-    if(!resp.ok){
-      throw new Error('HTTP ' + resp.status + ' from Gemini API');
-    }
+  return { title, session_dates: dates, sheet_name: sheetName, session_note: sessionNote, attendees };
+}
 
-    const data = await resp.json();
-    let raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    raw = raw.trim();
-    if(raw.startsWith('```')){ raw = raw.split('```')[1]; if(raw.toLowerCase().startsWith('json')) raw = raw.slice(4); raw = raw.trim() }
+/* Find a name mentioned near an email address in the text */
+function findNameForEmail(email, text){
+  const local = email.split('@')[0];
+  const escaped = email.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
-    const parsed = JSON.parse(raw);
-    if(!parsed.attendees || !parsed.attendees.length){
-      throw new Error('No attendees found. Make sure you paste the full email including CC/To fields.');
-    }
+  // Pattern: "Name - email" or "Name – email" or "Name : email" or "Name <email>"
+  const before = new RegExp(
+    '([A-Z][a-zA-Z\'\\-]+(?: [A-Z][a-zA-Z\'\\-]+){1,4})' +
+    '\\s*(?:[-–—:|]|<)\\s*' + escaped, 'i');
+  let m = text.match(before);
+  if(m) return cleanName(m[1]);
 
-    extractedData = parsed;
-    renderPreview(parsed);
-    setStatus('success', '✅ &nbsp;' + parsed.attendees.length + ' participant(s) extracted successfully. Review below and download.');
-    setExtractBtn(false);
-    document.getElementById('section-preview').classList.remove('hidden');
-    document.getElementById('section-preview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Pattern: "email - Name" or "email : Name"
+  const after = new RegExp(
+    escaped + '\\s*(?:[-–—:|])\\s*([A-Z][a-zA-Z\'\\-]+(?: [A-Z][a-zA-Z\'\\-]+){1,4})', 'i');
+  m = text.match(after);
+  if(m) return cleanName(m[1]);
 
-  } catch(e){
-    setExtractBtn(false);
-    if(e instanceof SyntaxError){
-      setStatus('error', '❌ Could not read Gemini\'s response. Please try again.');
-    } else {
-      setStatus('error', '❌ ' + e.message);
+  // Pattern: name appears on same line as email (tab/space separated table format)
+  const lines = text.split(/\r?\n/);
+  for(const line of lines){
+    if(line.toLowerCase().includes(email)){
+      // Remove the email itself and look for capitalised words
+      const stripped = line.replace(new RegExp(escaped,'i'),'').trim();
+      const nameMatch = stripped.match(/([A-Z][a-zA-Z''\-]+(?: [A-Z][a-zA-Z''\-]+){1,4})/);
+      if(nameMatch) return cleanName(nameMatch[1]);
     }
   }
+
+  // Pattern: name in CC / To field  "Display Name <email@domain>"
+  const displayName = new RegExp('"?([A-Z][a-zA-Z ,\'\\-]+)"?\\s*<' + escaped + '>', 'i');
+  m = text.match(displayName);
+  if(m) return cleanName(m[1]);
+
+  return null;
 }
 
-function esc(s){ const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML }
+/* Derive name from email local part: KshitijKumar.Thakar → Kshitij Kumar Thakar */
+function deriveNameFromEmail(email){
+  const local = email.split('@')[0];
+  // Split on dots, underscores, hyphens
+  const parts = local.split(/[._\-]/).filter(Boolean);
+  if(!parts.length) return null;
+  // Each part: split CamelCase (e.g. KshitijKumar → Kshitij Kumar)
+  const words = [];
+  parts.forEach(p => {
+    const camel = p.replace(/([A-Z])/g,' $1').trim();
+    camel.split(' ').forEach(w => { if(w) words.push(capitalize(w)); });
+  });
+  return words.join(' ');
+}
 
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+
+function cleanName(s){
+  return s.replace(/\s+/g,' ').replace(/[<>:]/g,'').trim();
+}
+
+/* Extract training title from email */
+function extractTitle(text){
+  // Look for lines that look like training names
+  const titleRe = /(?:training|workshop|session|course|program)[^\n]*|(?:business|system|operations)[^\n]*(?:training|workshop)/i;
+  // Try subject line first
+  const subjectMatch = text.match(/Subject\s*:\s*([^\n]+)/i);
+  if(subjectMatch) return subjectMatch[1].trim();
+  // Try common patterns
+  const m = text.match(titleRe);
+  if(m) return m[0].trim().substring(0,80);
+  return 'Training Roster';
+}
+
+/* Extract date ranges */
+function extractDates(text){
+  // Patterns like "Jul 6-9", "July 20-24, 2026", "7/6/26-7/9/26", "June 3-4"
+  const dateRe = /(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec|January|February|March|April|June|July|August|September|October|November|December)\w*\.?\s+\d{1,2}(?:\s*[-–]\s*\d{1,2})?(?:,?\s*\d{4})?|\d{1,2}\/\d{1,2}\/\d{2,4}\s*[-–]\s*\d{1,2}\/\d{1,2}\/\d{2,4}/gi;
+  const matches = text.match(dateRe);
+  if(!matches) return '';
+  // Return up to 2 date ranges joined
+  return [...new Set(matches)].slice(0,2).join(' & ');
+}
+
+/* ── Render preview table ── */
 function renderPreview(data){
   const tbody = document.getElementById('previewBody');
   tbody.innerHTML = '';
-  data.attendees.forEach((a, i) => {
-    const cls = a.status === 'Confirmed' ? 'tag-confirmed' : a.status === 'Waitlisted' ? 'tag-waitlisted' : 'tag-pending';
-    tbody.innerHTML += `<tr>
-      <td style="color:#888;font-size:12px">${i+1}</td>
-      <td><strong>${esc(a.name)}</strong></td>
-      <td style="color:#1a237e;font-size:12px">${esc(a.email)}</td>
-      <td style="color:#999;font-size:12px">${esc(a.dojo_account) || '—'}</td>
-      <td><span class="tag ${cls}">${esc(a.status)}</span></td>
-    </tr>`;
-  });
+  data.attendees.forEach((a,i) => renderRow(tbody, a, i));
   document.getElementById('previewHeading').textContent =
-    'Review & Download — ' + data.attendees.length + ' participant' + (data.attendees.length !== 1 ? 's' : '') + ' found';
+    'Review & Download — ' + data.attendees.length + ' participant' + (data.attendees.length!==1?'s':'') + ' found';
   document.getElementById('sessionStrip').innerHTML =
-    `<span><strong>Session:</strong> ${esc(data.title || '—')}</span><span><strong>Dates:</strong> ${esc(data.session_dates || '—')}</span>`;
+    '<span><strong>Session:</strong> ' + esc(data.title||'—') + '</span>' +
+    '<span><strong>Dates:</strong> ' + esc(data.session_dates||'—') + '</span>';
 }
 
+function renderRow(tbody, a, i){
+  const tr = document.createElement('tr');
+  tr.id = 'row-' + i;
+  tr.innerHTML =
+    '<td style="color:#888;font-size:12px;width:32px">' + (i+1) + '</td>' +
+    '<td><input class="editable" value="' + esc(a.name) + '" onchange="updateCell('+i+',\'name\',this.value)"/></td>' +
+    '<td><input class="editable" value="' + esc(a.email) + '" onchange="updateCell('+i+',\'email\',this.value)" style="color:#1a56db;font-size:12px"/></td>' +
+    '<td><input class="editable" value="" placeholder="—" onchange="updateCell('+i+',\'dojo_account\',this.value)" style="color:#999"/></td>' +
+    '<td><span class="tag">Confirmed</span></td>';
+  tbody.appendChild(tr);
+}
+
+function updateCell(i, field, val){
+  if(parsedData && parsedData.attendees[i]) parsedData.attendees[i][field] = val;
+}
+
+function addRow(){
+  if(!parsedData) return;
+  const i = parsedData.attendees.length;
+  parsedData.attendees.push({ name:'', email:'', dojo_account:'', status:'Confirmed' });
+  renderRow(document.getElementById('previewBody'), parsedData.attendees[i], i);
+  // Update heading
+  document.getElementById('previewHeading').textContent =
+    'Review & Download — ' + parsedData.attendees.length + ' participant' + (parsedData.attendees.length!==1?'s':'') + ' found';
+}
+
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+/* ── Download Excel ── */
 function downloadExcel(){
-  if(!extractedData) return;
-  const HFILL = 'BDD7EE', YFILL = 'FFFF00';
-  const border = { top:{style:'thin'}, bottom:{style:'thin'}, left:{style:'thin'}, right:{style:'thin'} };
-  const wb = XLSX.utils.book_new();
-  const ws = {};
-  const att = extractedData.attendees;
-  const cols = ['A','B','C','D','E'];
-
-  ws['A1'] = { v: ' ' + (extractedData.title || 'Training Roster'), t: 's',
-    s: { font:{name:'Calibri',bold:true,sz:11}, alignment:{horizontal:'center',vertical:'center'} } };
-  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:4} }];
-
-  ['Sr. No.','Attendees Name','Email Address','Dojo Account','Class Status'].forEach((h,i) => {
-    ws[cols[i]+'2'] = { v:h, t:'s',
-      s: { font:{name:'Calibri',bold:true,sz:11},
-           fill:{fgColor:{rgb:HFILL},patternType:'solid'},
-           border, alignment:{horizontal:'left'} } };
+  if(!parsedData) return;
+  // Sync editable values from DOM before download
+  document.querySelectorAll('#previewBody tr').forEach((tr,i)=>{
+    const inputs = tr.querySelectorAll('input.editable');
+    if(inputs[0] && parsedData.attendees[i]) parsedData.attendees[i].name  = inputs[0].value;
+    if(inputs[1] && parsedData.attendees[i]) parsedData.attendees[i].email = inputs[1].value;
+    if(inputs[2] && parsedData.attendees[i]) parsedData.attendees[i].dojo_account = inputs[2].value;
   });
 
-  att.forEach((a, i) => {
-    const r = i + 3;
-    [i+1, a.name, a.email, a.dojo_account||'', a.status||'Confirmed'].forEach((v, c) => {
-      ws[cols[c]+r] = { v, t: c===0?'n':'s',
-        s: { font:{name:'Calibri',sz:11}, border, alignment: c===0?{horizontal:'left'}:{} } };
+  const HFILL='BDD7EE', YFILL='FFFF00';
+  const border={top:{style:'thin'},bottom:{style:'thin'},left:{style:'thin'},right:{style:'thin'}};
+  const wb = XLSX.utils.book_new();
+  const ws = {};
+  const att = parsedData.attendees;
+  const cols = ['A','B','C','D','E'];
+
+  ws['A1'] = { v:' '+(parsedData.title||'Training Roster'), t:'s',
+    s:{ font:{name:'Calibri',bold:true,sz:11}, alignment:{horizontal:'center',vertical:'center'} } };
+  ws['!merges'] = [{ s:{r:0,c:0}, e:{r:0,c:4} }];
+
+  ['Sr. No.','Attendees Name','Email Address','Dojo Account','Class Status'].forEach((h,i)=>{
+    ws[cols[i]+'2'] = { v:h, t:'s',
+      s:{ font:{name:'Calibri',bold:true,sz:11},
+          fill:{fgColor:{rgb:HFILL},patternType:'solid'},
+          border, alignment:{horizontal:'left'} } };
+  });
+
+  att.forEach((a,i)=>{
+    const r = i+3;
+    [i+1, a.name, a.email, a.dojo_account||'', a.status||'Confirmed'].forEach((v,c)=>{
+      ws[cols[c]+r] = { v, t:c===0?'n':'s',
+        s:{ font:{name:'Calibri',sz:11}, border, alignment:c===0?{horizontal:'left'}:{} } };
     });
   });
 
-  const nr = att.length + 3;
-  ws['A'+nr] = { v: extractedData.session_note || extractedData.session_dates || '', t: 's',
-    s: { font:{name:'Calibri',bold:true,sz:9},
-         fill:{fgColor:{rgb:YFILL},patternType:'solid'},
-         alignment:{horizontal:'left'} } };
+  const nr = att.length+3;
+  ws['A'+nr] = { v:parsedData.session_note||parsedData.session_dates||'', t:'s',
+    s:{ font:{name:'Calibri',bold:true,sz:9},
+        fill:{fgColor:{rgb:YFILL},patternType:'solid'},
+        alignment:{horizontal:'left'} } };
   ws['!merges'].push({ s:{r:nr-1,c:0}, e:{r:nr-1,c:4} });
-  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:nr-1,c:4} });
+  ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0},e:{r:nr-1,c:4}});
   ws['!cols'] = [{wch:7},{wch:22},{wch:38},{wch:13},{wch:14}];
 
-  XLSX.utils.book_append_sheet(wb, ws, (extractedData.sheet_name||'Roster').substring(0,31));
-  XLSX.writeFile(wb, 'Training_Roster_' + new Date().toISOString().slice(0,10) + '.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, (parsedData.sheet_name||'Roster').substring(0,31));
+  XLSX.writeFile(wb, 'Training_Roster_'+new Date().toISOString().slice(0,10)+'.xlsx');
 }
-
-window.addEventListener('load', () => {
-  const k = getKey();
-  if(k){ document.getElementById('apiKeyInput').value = k; updatePill(true) }
-  document.getElementById('modalOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal() });
-});
 </script>
 </body>
 </html>
